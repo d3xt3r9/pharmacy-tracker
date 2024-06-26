@@ -62,6 +62,11 @@
           Add Product
         </button>
       </form>
+
+      <h2 class="mt-8">Product List</h2>
+      <button @click="getit" class="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 transition-colors duration-300 w-full">
+        Disconnect
+      </button>
     </main>
   </div>
 </template>
@@ -69,7 +74,7 @@
 <script setup>
 import { ethers } from 'ethers';
 import { ref, onMounted } from 'vue';
-import { addProduct, liveproductUpdates } from '../helpers/ContractFunctions.vue';
+import { addProduct, getProductbyid } from '../helpers/ContractFunctions.vue';
 
 const productName = ref('');
 const productQuantity = ref(0);
@@ -80,6 +85,11 @@ const products = ref([]);
 async function addaProduct() {
   const txhash = await addProduct(productName, productQuantity, productLocation);
   console.log('Transaction Hash:', txhash);
+}
+
+async function getit() {
+  const product = await getProductbyid(3);
+  console.log('Product:', product);
 }
 
 // async function addProduct() {

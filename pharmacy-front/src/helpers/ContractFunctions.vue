@@ -26,9 +26,8 @@ const contractABI = [
   'event ProductUpdated(uint256 indexed productId, address indexed from, address indexed to, uint8 location, uint256 quantity)',
 ];
 
-const provider = new ethers.BrowserProvider(window.ethereum);
-
 export async function getUserRole() {
+  const provider = new ethers.BrowserProvider(window.ethereum);
   if (getUserWallet() != null) {
     const signer = await provider.getSigner();
     const signerAddress = await signer.getAddress();
@@ -49,6 +48,7 @@ export async function getUserRole() {
 }
 
 export async function addUser(wallet, role, name, email) {
+  const provider = new ethers.BrowserProvider(window.ethereum);
   const signer = await provider.getSigner();
   const signerAddress = await signer.getAddress();
   const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer);
@@ -66,6 +66,7 @@ export async function addUser(wallet, role, name, email) {
 }
 
 export async function getUsers() {
+  const provider = new ethers.BrowserProvider(window.ethereum);
   const contract = new ethers.Contract(contractAddress, contractABI, provider);
 
   try {
@@ -87,6 +88,7 @@ export async function getUsers() {
 }
 
 export async function addProduct(productName, productQuantity, productLocation) {
+  const provider = new ethers.BrowserProvider(window.ethereum);
   const signer = await provider.getSigner();
   const signerAddress = await signer.getAddress();
   const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer);
@@ -106,7 +108,22 @@ export async function addProduct(productName, productQuantity, productLocation) 
   }
 }
 
+export async function getProductbyid(productId) {
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const contract = new ethers.Contract(contractAddress, contractABI, provider);
+
+  try {
+    const product = await contract.getProduct(productId);
+    return product;
+    console.log('Product:', product);
+    console.log('Product Name:', product.name);
+  } catch (error) {
+    console.error('Error fetching product:', error);
+  }
+}
+
 export async function liveproductUpdates() {
+  const provider = new ethers.BrowserProvider(window.ethereum);
   const contract = new ethers.Contract(contractAddress, contractABI, provider);
 
   contract.on('ProductAdded', (productId, name, owner, quantity, location) => {
