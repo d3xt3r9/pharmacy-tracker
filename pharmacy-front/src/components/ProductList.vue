@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div>
     <h1>Product List</h1>
     <ul>
@@ -47,4 +47,4 @@ onMounted(async () => {
 h1 {
   color: #2c3e50;
 }
-</style>
+</style> -->

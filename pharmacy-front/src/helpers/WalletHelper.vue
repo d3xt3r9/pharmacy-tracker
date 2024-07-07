@@ -1,7 +1,5 @@
 <script>
-import { ref, onMounted } from 'vue';
-import { ethers } from 'ethers';
-import { contractAddress, contractABI } from './ContractFunctions.vue';
+import { ref } from 'vue';
 
 const userAddress = ref(localStorage.getItem('userAddress') || null);
 const isConnected = ref(userAddress.value !== null);
