@@ -1,237 +1,307 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+//TODO
+// 1. check (public, internal, external, private)
+// 2. check fees for adding and updating products
+// 3. check the roles and the access to the functions
+
 import "hardhat/console.sol";
 
-
 contract PharmacyChain {
-    // Structs to store the product data
-    struct Product {    
+
+    struct Product {
+        uint8 productId;
         string name;
-        address currentOwner;
-        uint256 quantity;
-        ProductLocation location;
+        uint8 quantity;
+        address currentOwner;    
+        ProductLocation currentlocation;
         ShippingData[] shippingHistory;
     }
-    // Struct to store the shipping data
     struct ShippingData {
-        address from;
-        address to;
+        uint256 transferId;
+        address makeTransfer;
         uint256 timestamp;
-        string location;
-        uint256 quantity;
+        ProductLocation location;
+        uint8 quantity;
     }
-    // Struct to store the user data
     struct User {
-        string name;
-        string email;
         address walletAddress;
+        string name;
+        string email;   
         Role role;
     }
     // Enum to store the roles and the product location
-    enum ProductLocation { Manufacturer, Supplier, LogisticWarehouse, Pharmacy }
-    enum Role { Administrator, Supplier, LogisticEmployee, Controller }
-    // Mapping to store the roles of the participants and the products
+    enum ProductLocation {Default, Manufacturer, Supplier, LogisticWarehouse,Courier, Pharmacy }
+    enum Role {Default, Administrator, Supplier, LogisticEmployee, Controller }
+
     mapping(address => Role) public roles;
     mapping(uint256 => Product) public products;
-    mapping(address => User) public participants;
-    // Variables to store the product counter and the fees
-    uint256 public productCounter;
+    mapping(address => User) public users;
+
+    uint256 private totalUsers;
+    uint256 private totalProducts;
+
+    address[] public userAddressList;
+    uint8[] public productAddressList;
+
     uint256 public addProductFee = 0.01 ether;
     uint256 public updateProductFee = 0.1 ether;
-    // Events to log the actions
-    event ParticipantAdded(address indexed participant, Role role, string name, string email);
-    event ParticipantRemoved(address indexed participant);
-    event ProductAdded(uint256 indexed productId, string name, address indexed owner, uint256 quantity, ProductLocation location);
-    event ProductUpdated(uint256 indexed productId, address indexed from, address indexed to, ProductLocation location, uint256 quantity);
-    /*
-        Modifiers that are used to restrict access to certain functions
-        only the administrator can add and remove participants
-        only the participants can add products
-        only the current owner of the product can update the product
-        and cost modifier to ensure that the user is serious about adding a product
-    */
+
+    event UserAdded(address indexed user, Role role, string name, string email);
+    event UserRemoved(address indexed participant);
+   
+    event ProductAdded(uint8 indexed productId, string name, address indexed owner, uint256 quantity);
+    event ProductUpdated(uint8 indexed productId, address indexed from, address indexed to, ProductLocation location, uint256 quantity);
+
+    event TransferAdded(uint256 indexed transferId, uint8 indexed productId, address indexed makeTransfer, ProductLocation location);
+    event TransferUpdated(uint256 indexed transferId, address indexed from, address indexed to, ProductLocation location);
+
     modifier onlyRole(Role _role) {
-        require(roles[msg.sender] == _role, "Access denied");
+        console.log("From onlyrole",getUserRole(msg.sender));
+        
+        User storage user = users[msg.sender];
+
+        require(user.role == _role, "Access denied");
+        _;
+    }
+    
+    modifier userExist() {
+
+        require(users[msg.sender].walletAddress == msg.sender, "User does not exist");
         _;
     }
 
-    modifier onlyParticipant() {
-        require(participants[msg.sender].walletAddress != address(0), "Not a participant");
+    modifier userAlreadyExist(address _user) {
+        User storage user = users[_user];
+        require(user.walletAddress != _user, "User already exists");
         _;
     }
 
-    // Modifier to check if the user has sent enough funds
+    modifier walletExist(address _walletAddress) {
+
+        require(users[_walletAddress].walletAddress == _walletAddress, "User does not exist");
+        _;
+    }
+
+    modifier productAlreadyExist(uint8 _productId) {
+        
+        Product storage product = products[_productId];
+
+        require(product.productId != _productId, "Product already exists");
+        _;
+    }
+
+    modifier porductIdExist(uint8 _productId) {
+        Product storage product = products[_productId];
+        require(product.productId == _productId, "Product does not exist");
+        _;
+    }
+
+    modifier productExistsForTransfer(uint8 _productId , uint256 _transferId) {
+        Product storage product = products[_productId];
+        require(product.productId == _productId, "Product does not exist");
+        ShippingData storage shippingData = product.shippingHistory[0];
+        require(shippingData.transferId == _transferId, "Transfer does not exist");
+            _;
+    }
+
+
+
     modifier costs(uint256 amount) {
         require(msg.value >= amount, "Insufficient funds sent");
         _;
     }
-    /*
-        Constructor to set the initial administrator of the contract which is the deployer of the contract
-    */
+
+    // Constructor to set the contract creator as the administrator
     constructor() {
-        roles[msg.sender] = Role.Administrator; // Contract deployer is the initial admin
-    }
-    /*  
-        Functions that are related to add and remove participants
-        only the administrator can add and remove participants
-    */
-    function addParticipant(address _participant, Role _role, string memory _name, string memory _email) public onlyRole(Role.Administrator) {
-        participants[_participant] = User({
-            name: _name,
-            email: _email,
-            walletAddress: _participant,
-            role: _role
-        });
-        roles[_participant] = _role;
-        emit ParticipantAdded(_participant, _role, _name, _email);
-    }
-    function removeParticipant(address _participant) public onlyRole(Role.Administrator) {
-        delete participants[_participant];
-        emit ParticipantRemoved(_participant);
+        users[msg.sender].walletAddress = msg.sender;
+        users[msg.sender].name = "Administrator";
+        users[msg.sender].email = "admin@mypharmachain.com";
+        users[msg.sender].role = Role.Administrator;
+
+        totalUsers++;
+        userAddressList.push(address(msg.sender));
     }
 
-    function getParticipant(address _participant) public view returns (User memory) {
-        console.log("getParticipant", _participant);
-        console.log("participants", participants[_participant].walletAddress);
-        console.log("participants", participants[_participant].name);
-        console.log("participants", participants[_participant].email);
-        console.log("participants", roleToString(participants[_participant].role));
+    function addUser(address _user, string memory _name, string memory _email, Role _role) public onlyRole(Role.Administrator) userAlreadyExist(_user){
+            
+            User storage user = users[_user];
 
-        return participants[_participant];
-    }
+            user.walletAddress = _user;
+            user.name = _name;
+            user.email = _email;
+            user.role = _role;
 
-    function getRole(address _participant) public view returns (string memory) {
-        return roleToString(participants[_participant].role);
-    }
-    /* 
-        functions that are related to add and update products
-        the cost of adding a product is 0.01 ether to ensure that the user is serious about adding a product
-        also the user must be a participant to add a product
-        and only the current owner of the product can update the product
-    */
-    function addProduct(string memory _name, uint256 _quantity, ProductLocation _location) public payable onlyParticipant costs(addProductFee) {
-        productCounter++;
-        Product storage newProduct = products[productCounter];
-        newProduct.name = _name;
-        newProduct.currentOwner = msg.sender;
-        newProduct.quantity = _quantity;
-        newProduct.location = _location;
-        emit ProductAdded(productCounter, _name, msg.sender, _quantity, _location);
-    }
-    function updateProduct(uint256 _productId, address _to, ProductLocation _location, uint256 _quantity) public payable onlyParticipant costs(updateProductFee){
-        Product storage product = products[_productId];
-        require(product.currentOwner == msg.sender, "Only current owner can update");
+            totalUsers++;
+            userAddressList.push(address(user.walletAddress));
 
-        product.shippingHistory.push(ShippingData(product.currentOwner, _to, block.timestamp, locationToString(_location), _quantity));
-        product.currentOwner = _to;
-        product.location = _location;
-        product.quantity = _quantity;
-
-        emit ProductUpdated(_productId, msg.sender, _to, _location, _quantity);
-    }
-   /*
-        functions that helps to restrict the access to the product based on the user role and the product shipping history
-        if the user is the controller he can access the product directly
-        if the user is the logistic employee he can access the product if the product is up to the logistic warehouse
-        if the user is the supplier he can access the product if the product is up to the manufacturer
-        if the user is not one of the previous roles he can't access the product
-    */
-    function getProduct(uint256 _productId) public view returns (Product memory) {
-        require(canAccessProduct(_productId), "Access denied");
-        return products[_productId];
-    }
-    // Check if the user has access to the product
-    function canAccessProduct(uint256 _productId) internal view returns (bool) {
-        if (roles[msg.sender] == Role.Controller) {
-            return true;
-        } else if (roles[msg.sender] == Role.LogisticEmployee) {
-            return checkAccess(_productId, 4); // up to Logistic Warehouse
-        } else if (roles[msg.sender] == Role.Supplier) {
-            return checkAccess(_productId, 2); // up to Manufacturer
+            console.log("From addUser",totalUsers);
+            emit UserAdded(_user, _role, _name, _email);
         }
-        return false;
-    }
 
-    // Check if the user has access to the product based on the shipping history
-    function checkAccess(uint256 _productId, uint _maxIndex) internal view returns (bool) {
-        Product storage product = products[_productId];
-        for (uint i = 0; i < product.shippingHistory.length && i < _maxIndex; i++) {
-            if (product.shippingHistory[i].from == msg.sender || product.shippingHistory[i].to == msg.sender) {
-                return true;
+    function deleteUser(address _user) public onlyRole(Role.Administrator) walletExist(_user){
+            delete users[_user];
+            totalUsers--;
+
+            for (uint i = 0; i < userAddressList.length; i++) {
+                if (userAddressList[i] == _user) {
+                    userAddressList[i] = userAddressList[userAddressList.length - 1];
+                    userAddressList.pop();
+                    break;
+                }
+            }
+
+            emit UserRemoved(_user);
+        }
+
+
+    function addProduct(uint8 _productId, string memory _name, uint8 _quantity) public  onlyRole(Role.Administrator)  productAlreadyExist( _productId){
+            console.log("From addProduct",msg.sender);
+
+            Product storage product = products[_productId];
+
+            uint256 transferId = rand();
+
+            product.productId = _productId;
+            product.name = _name;
+            product.quantity = _quantity;
+            product.currentOwner = msg.sender;
+            product.currentlocation = ProductLocation.Manufacturer;// Starting Point
+
+            product.shippingHistory.push(ShippingData(transferId, msg.sender, block.timestamp, product.currentlocation, _quantity));
+            console.log(transferId);
+
+            totalProducts++;
+            productAddressList.push(uint8(_productId));
+
+            emit ProductAdded(_productId, _name, msg.sender,  _quantity);
+        }
+    
+    function deleteProduct(uint8 _productId)  onlyRole(Role.Administrator)  porductIdExist(_productId) public {
+            delete products[_productId];
+
+            totalProducts--;
+
+            for (uint i = 0; i < productAddressList.length; i++) {
+                if (productAddressList[i] == _productId) {
+                    productAddressList[i] = productAddressList[productAddressList.length - 1];
+                    productAddressList.pop();
+                    break;
+                }
             }
         }
-        return false;
-    }
 
-    // Function to get the product shipping history to string array
-    function getShippingHistory(uint256 _productId) public view returns (string[] memory) {
-        ShippingData[] memory shippingHistory = products[_productId].shippingHistory;
-        string[] memory history = new string[](shippingHistory.length);
-        for (uint i = 0; i < shippingHistory.length; i++) {
-            history[i] = string(abi.encodePacked(
-                "From: ", participants[shippingHistory[i].from].name, " To: ", participants[shippingHistory[i].to].name,
-                " Location: ", shippingHistory[i].location, " Quantity: ", uint2str(shippingHistory[i].quantity),
-                " Timestamp: ", uint2str(shippingHistory[i].timestamp)
-            ));
+    function getProduct(uint8 _productId) public userExist() view returns (string memory Name, uint8 Quantity, address CurrentOwner, ProductLocation CurrentLocation, ShippingData[] memory ShippingHistory) {
+
+            console.log("From getProduct user address",msg.sender);
+
+            Product storage product = products[_productId];
+            User storage user = users[msg.sender];
+
+            ProductLocation CheckLocation = product.currentlocation;
+            Role userRole = user.role;
+            
+            if (userRole == Role.Administrator) {
+                console.log("Admin -- Manufacturer");
+                return (product.name,product.quantity, product.currentOwner, product.currentlocation, product.shippingHistory);
+            } else if(userRole == Role.Supplier && CheckLocation == ProductLocation.Supplier) {
+                console.log("Supplier -- Supplier");
+                return (product.name, product.quantity, product.currentOwner, product.currentlocation, product.shippingHistory);
+            } else if(userRole == Role.LogisticEmployee && CheckLocation == ProductLocation.LogisticWarehouse) {
+                console.log("LogisticEmployee -- LogisticWarehouse");
+                return (product.name, product.quantity, product.currentOwner, product.currentlocation, product.shippingHistory);
+            } else if(userRole == Role.Controller) {
+                console.log("Controller");
+                return (product.name, product.quantity, product.currentOwner, product.currentlocation, product.shippingHistory);
+            } else {
+                return ("Access Denied", 0, address(0), ProductLocation.Default, new ShippingData[](0));
+            }       
         }
-        return history;
+
+   
+
+    function addTranfer(uint8 _productId, uint256 _transferId, ProductLocation _location) public productExistsForTransfer (_productId, _transferId){
+
+            Product storage product = products[_productId];
+
+            uint256 transferIdss = product.shippingHistory[0].transferId;
+            console.log("From addTranfer",transferIdss);
+
+            product.shippingHistory.push(ShippingData(transferIdss, msg.sender, block.timestamp, _location, product.quantity));
+            // product.currentOwner = msg.sender;
+            product.currentlocation = _location;
+
+            emit TransferAdded(_transferId, _productId, msg.sender, _location);
+        }
+
+
+//helper functions
+
+    function getMyPrsonalInfo() public  userExist() view returns (address _walletAddress, string memory _name, string memory _email, string memory _role) {
+        
+            User storage user = users[msg.sender];
+                
+            console.log("From getMyPrsonalInfo",user.walletAddress);
+
+        return (user.walletAddress, user.name, user.email, getUserRole(msg.sender));
     }
 
-    // Function to get the role name
-    function roleToString(Role _role) internal pure returns (string memory) {
-        if (_role == Role.Administrator) {
+    function getUserlInfo(address _walletAddress) public  onlyRole(Role.Administrator) view returns (string memory _name, string memory _email, string memory _role) {
+        
+            User storage user = users[_walletAddress];
+                
+            console.log("From getUserslInfo",user.walletAddress);
+
+        return (user.name, user.email, getUserRole(_walletAddress));
+    }
+
+    function getUserRole(address _user) public view returns (string memory) {
+
+        User storage user = users[_user];
+
+        if (user.role == Role.Administrator) {
+            console.log("Admin", _user);
+            console.log("Admin", user.name);
             return "Administrator";
-        } else if (_role == Role.Supplier) {
+        } else if (user.role == Role.Supplier) {
+            console.log("Supplier", _user);
             return "Supplier";
-        } else if (_role == Role.LogisticEmployee) {
+        } else if (user.role == Role.LogisticEmployee) {
+            console.log("LogisticEmployee", _user);
             return "Logistic Employee";
-        } else if (_role == Role.Controller) {
+        } else if (user.role == Role.Controller) {
+            console.log("Controller", _user);
             return "Controller";
         } else {
-            revert("Invalid role");
+            console.log("Invalid role", _user);
+            return "Invalid role";
         }
     }
 
-    // Function to get the product location
-    function locationToString(ProductLocation _location) internal pure returns (string memory) {
-        if (_location == ProductLocation.Manufacturer) {
-            return "Manufacturer";
-        } else if (_location == ProductLocation.Supplier) {
-            return "Supplier";
-        } else if (_location == ProductLocation.LogisticWarehouse) {
-            return "Logistic Warehouse";
-        } else if (_location == ProductLocation.Pharmacy) {
-            return "Pharmacy";
-        } else {
-            revert("Invalid location");
-        }
-    }
-    // Ηelper function to convert uint to string
-    function uint2str(uint256 _i) internal pure returns (string memory _uintAsString) {
-        if (_i == 0) {
-            return "0";
-        }
-        uint256 j = _i;
-        uint256 len;
-        while (j != 0) {
-            len++;
-            j /= 10;
-        }
-        bytes memory bstr = new bytes(len);
-        uint256 k = len;
-        while (_i != 0) {
-            k = k-1;
-            uint8 temp = (48 + uint8(_i - _i / 10 * 10));
-            bytes1 b1 = bytes1(temp);
-            bstr[k] = b1;
-            _i /= 10;
-        }
-        return string(bstr);
+     function getAddressList() public view  onlyRole(Role.Administrator) returns  (address[] memory) {
+        return (userAddressList);
     }
 
-    // Function to withdraw the contract balance
-    function withdraw() public onlyRole(Role.Administrator) {
-        payable(msg.sender).transfer(address(this).balance);
+    function getProductList() public view  onlyRole(Role.Administrator) returns  (uint8[] memory) {
+        return (productAddressList);
     }
+
+    // This function is used to generate a random number for the transferId
+    function rand() public view returns(uint256)
+        {
+            uint256 seed = uint256(keccak256(abi.encodePacked(
+                block.timestamp + block.prevrandao +
+                ((uint256(keccak256(abi.encodePacked(block.coinbase)))) / (block.timestamp)) +
+                block.gaslimit + 
+                ((uint256(keccak256(abi.encodePacked(msg.sender)))) / (block.timestamp)) +
+                block.number
+            )));
+
+            return (seed - ((seed / 1000) * 1000));
+        }
+        //These are functions to stop get errors from metamask to hardhat test network
+        receive() external payable {}
+        fallback() external payable {}
+    
 }
