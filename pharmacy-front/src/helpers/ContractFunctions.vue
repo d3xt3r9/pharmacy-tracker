@@ -19,6 +19,7 @@ const contractABI = [
   'function getProductList() public view returns  (tuple(uint8)[] productAddressList)',
   'function getProduct(uint8 _productId) view returns (string name, uint8 quantity, address currentOwner, uint8 currentLocation, tuple(uint256 transferId, address makeTransfer, uint256 timestamp, uint8 location, uint8 quantity)[] shippingHistory)',
   'function getParticipant(address _participant) view returns (string name, string email, address walletAddress, uint8 role)',
+  'function addTranfer(uint8 _productId, uint256 _transferId, uint8 _location)',
   // 'function addProductFee() view returns (uint256)',
 ];
 
@@ -178,6 +179,24 @@ export async function getProductbyidFromPharmaChain(productId) {
     console.log('Revert reason:', reason);
   }
 }
+
+export async function makeTransfer(productID, transferID, locationTransfer) {
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+  const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer);
+  try {
+    const tx = await contractWithSigner.addTranfer(productID, transferID, locationTransfer, {
+      gasLimit: 30000000,
+    });
+    await tx.wait();
+    console.log('Transactionsss Hash:', tx.hash);
+    return tx.hash;
+  } catch (error) {
+    const { reason } = await errorDecoder.decode(error);
+    console.log('Revert reason:', reason);
+  }
+}
+
 export async function getProductsId() {
   const provider = new ethers.BrowserProvider(window.ethereum);
   const signer = await provider.getSigner();

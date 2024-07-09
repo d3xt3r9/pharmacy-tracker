@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue';
 import NotFoundView from '../views/NotFoundView.vue';
 import AddProductView from '../views/AddProductView.vue';
 import DeleteProductView from '../views/DeleteProductView.vue';
+import TransferView from '../views/TransferView.vue';
 import AddDeleteUser from '../views/AddUserView.vue';
 import DeleteUser from '../views/DeleteUserView.vue';
 
@@ -23,6 +24,11 @@ const router = createRouter({
       path: '/deleteproduct',
       name: 'deleteproduct',
       component: () => import('../views/DeleteProductView.vue'),
+    },
+    {
+      path: '/transfer',
+      name: 'transfer',
+      component: () => import('../views/TransferView.vue'),
     },
     {
       path: '/adduser',

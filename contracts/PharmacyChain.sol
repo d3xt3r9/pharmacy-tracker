@@ -106,6 +106,34 @@ contract PharmacyChain {
             _;
     }
 
+    modifier transferAllowed(uint8 _productId, ProductLocation _location) {
+        
+        Product storage product = products[_productId];
+
+        ProductLocation current = product.currentlocation;
+
+        address tranferer = msg.sender;
+
+        require(users[tranferer].role != Role.Administrator, "Admin cant transfer product");
+
+        if (current == ProductLocation.Manufacturer) {
+            require(users[tranferer].role == Role.Supplier, "Transfer not allowed");
+            require(_location == ProductLocation.Supplier, "Transfer not allowed");
+
+        } else if (current == ProductLocation.Supplier) {
+            require(users[tranferer].role == Role.LogisticEmployee, "Transfer not allowed");
+            require(_location == ProductLocation.LogisticWarehouse || _location == ProductLocation.Courier, "Transfer not allowed");
+
+        } else if (current == ProductLocation.LogisticWarehouse || current == ProductLocation.Courier) {
+            require(users[tranferer].role == Role.Controller, "Transfer not allowed");
+            require(_location == ProductLocation.Pharmacy, "Transfer not allowed");
+
+        } else {
+            require(false, "Transfer not allowed");
+        }
+        _;
+    }
+
 
 
     modifier costs(uint256 amount) {
@@ -205,23 +233,31 @@ contract PharmacyChain {
             if (userRole == Role.Administrator) {
                 console.log("Admin -- Manufacturer");
                 return (product.name,product.quantity, product.currentOwner, product.currentlocation, product.shippingHistory);
-            } else if(userRole == Role.Supplier && CheckLocation == ProductLocation.Supplier) {
+
+            } else if(userRole == Role.Supplier && CheckLocation == ProductLocation.Manufacturer) {
                 console.log("Supplier -- Supplier");
                 return (product.name, product.quantity, product.currentOwner, product.currentlocation, product.shippingHistory);
+
             } else if(userRole == Role.LogisticEmployee && CheckLocation == ProductLocation.LogisticWarehouse) {
                 console.log("LogisticEmployee -- LogisticWarehouse");
                 return (product.name, product.quantity, product.currentOwner, product.currentlocation, product.shippingHistory);
+
+             } else if(userRole == Role.LogisticEmployee && CheckLocation == ProductLocation.Courier) {
+                console.log("LogisticEmployee -- LogisticWarehouse");
+                return (product.name, product.quantity, product.currentOwner, product.currentlocation, product.shippingHistory);
+
             } else if(userRole == Role.Controller) {
                 console.log("Controller");
                 return (product.name, product.quantity, product.currentOwner, product.currentlocation, product.shippingHistory);
+
             } else {
-                return ("Access Denied", 0, address(0), ProductLocation.Default, new ShippingData[](0));
+                return ("Access Denied to ger products", 0, address(0), ProductLocation.Default, new ShippingData[](0));
             }       
         }
 
    
 
-    function addTranfer(uint8 _productId, uint256 _transferId, ProductLocation _location) public productExistsForTransfer (_productId, _transferId){
+    function addTranfer(uint8 _productId, uint256 _transferId, ProductLocation _location) public userExist() transferAllowed(_productId, _location) productExistsForTransfer (_productId, _transferId){
 
             Product storage product = products[_productId];
 
@@ -229,7 +265,7 @@ contract PharmacyChain {
             console.log("From addTranfer",transferIdss);
 
             product.shippingHistory.push(ShippingData(transferIdss, msg.sender, block.timestamp, _location, product.quantity));
-            // product.currentOwner = msg.sender;
+            product.currentOwner = msg.sender;
             product.currentlocation = _location;
 
             emit TransferAdded(_transferId, _productId, msg.sender, _location);
@@ -283,7 +319,7 @@ contract PharmacyChain {
         return (userAddressList);
     }
 
-    function getProductList() public view  onlyRole(Role.Administrator) returns  (uint8[] memory) {
+    function getProductList() public view  userExist() returns  (uint8[] memory) {
         return (productAddressList);
     }
 

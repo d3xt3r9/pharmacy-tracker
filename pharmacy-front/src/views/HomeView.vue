@@ -42,6 +42,9 @@
           <button @click="disconnectWallet" class="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 transition-colors duration-300 w-full">
             Disconnect
           </button>
+          <button @click="transfer" class="bg-cyan-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition-colors duration-300 w-full">
+            Transfer Product
+          </button>
         </div>
       </div>
       <div v-else>
@@ -104,5 +107,13 @@ function deleteUser() {
     return;
   }
   router.push('/deleteUser');
+}
+
+function transfer() {
+  if (!isConnected.value) {
+    alert('Please connect your wallet first.');
+    return;
+  }
+  router.push('/transfer');
 }
 </script>

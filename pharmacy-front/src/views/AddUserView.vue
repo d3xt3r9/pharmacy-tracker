@@ -37,7 +37,6 @@
               <option value="2">Supplier</option>
               <option value="3">Logistic Employee</option>
               <option value="4">Controller</option>
-              <!-- Add more roles as needed -->
             </select>
           </div>
           <button type="submit" class="bg-blue-500 text-white p-2 rounded">Add Participant</button>
