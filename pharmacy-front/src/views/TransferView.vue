@@ -45,7 +45,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getUserWallet } from '../helpers/WalletHelper.vue';
+// import { getUserWallet } from '../helpers/WalletHelper.vue';
 import { getProductsId, getProductbyidFromPharmaChain, makeTransfer } from '../helpers/ContractFunctions.vue';
 
 const productID = ref(0);
@@ -85,9 +85,5 @@ async function transferProduct(productID, transferID, locationTransfer) {
   const txID = await makeTransfer(productID, transferID, locationTransfer);
   console.log(txID);
   return;
-
-  //   const txID = await removeProduct(currentProductID);
-  //   console.log(txID);
-  //   return;
 }
 </script>

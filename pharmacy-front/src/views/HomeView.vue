@@ -1,54 +1,68 @@
 <template>
-  <div
-    :class="{
-      'grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-8 items-center justify-center min-h-screen bg-gray-100 p-4 md:p-8': !isConnected,
-      'grid grid-cols-1 gap-4 md:gap-8 items-center justify-center min-h-screen bg-gray-100 p-4 md:p-8': isConnected,
-    }"
-  >
-    <!--  Right Column - Welcome Message -->
-    <div class="text-center">
-      <h1 v-if="!isConnected" class="text-4xl font-bold mb-2 md:mb-4 text-blue-600">Welcome to Pharmacy Supply Chain</h1>
-      <p v-if="!isConnected" class="text-lg mb-2 md:mb-4">Manage your products securely with blockchain technology.</p>
-      <button
-        v-if="!isConnected"
-        @click="connectWallet"
-        class="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition-colors duration-300"
-      >
-        Connect to MetaMask
-      </button>
-      <div v-else>
-        <h1 class="text-4xl font-bold mb-2 md:mb-4 text-blue-600">Welcome to Pharmacy Supply Chain</h1>
-        <p class="text-lg mb-2">Wallet Connected:</p>
-        <p class="text-lg font-semibold mb-4">{{ address }}</p>
-        <p class="text-lg mb-2">Role: {{ userrole }}</p>
-      </div>
-    </div>
-    <div class="text-center" :class="{ 'mb-2 md:mb-4': !isConnected }">
-      <div v-if="isConnected">
-        <div class="space-y-4">
-          <h2 class="text-2xl font-bold mb-2 md:mb-4">Actions</h2>
-          <button @click="addUser" class="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition-colors duration-300 w-full">
-            Add User
-          </button>
-          <button @click="deleteUser" class="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 transition-colors duration-300 w-full">
-            Delete User
-          </button>
-          <button @click="addProduct" class="bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 transition-colors duration-300 w-full">
-            Add Product
-          </button>
-          <button @click="deleteProduct" class="bg-yellow-500 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600 transition-colors duration-300 w-full">
-            Delete Product
-          </button>
-          <button @click="disconnectWallet" class="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 transition-colors duration-300 w-full">
-            Disconnect
-          </button>
-          <button @click="transfer" class="bg-cyan-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition-colors duration-300 w-full">
-            Transfer Product
-          </button>
+  <div class="flex flex-col items-center justify-center min-h-screen bg-cover bg-center bg-gray-50 p-4 md:p-8 space-y-8">
+    <!-- Welcome Message -->
+    <div class="text-center w-full max-w-3xl">
+      <div class="bg-white bg-opacity-80 shadow-xl rounded-lg p-8 md:p-12">
+        <h1 class="text-4xl md:text-3xl font-extrabold mb-6 text-blue-600">Welcome to Pharmacy Supply Chain</h1>
+        <div class="text-left space-y-2">
+          <p class="text-gray-800 text-lg md:text-xl"><span class="font-semibold">Wallet Connected:</span> {{ address }}</p>
+          <p class="text-gray-800 text-lg md:text-xl"><span class="font-semibold">Name:</span> {{ name }}</p>
+          <p class="text-gray-800 text-lg md:text-xl"><span class="font-semibold">Email:</span> {{ email }}</p>
+          <p class="text-gray-800 text-lg md:text-xl"><span class="font-semibold">Role:</span> {{ userrole }}</p>
         </div>
       </div>
-      <div v-else>
-        <img src="../assets/pharmacycover.jpg" alt="Connected Image" class="mx-auto rounded-full w-80 object-cover" />
+    </div>
+
+    <!-- Actions -->
+    <div class="text-center w-full max-w-3xl">
+      <div class="bg-white bg-opacity-80 shadow-xl rounded-lg p-6 md:p-8">
+        <div v-if="isConnected">
+          <h2 class="text-2xl font-bold mb-4">Actions</h2>
+          <div class="space-y-4">
+            <button
+              v-if="userrole == 'Administrator'"
+              @click="addUser"
+              class="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition-colors duration-300 w-3/4 mx-auto"
+            >
+              Add User
+            </button>
+            <button
+              v-if="userrole == 'Administrator'"
+              @click="deleteUser"
+              class="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 transition-colors duration-300 w-3/4 mx-auto"
+            >
+              Delete User
+            </button>
+            <button
+              v-if="userrole == 'Administrator'"
+              @click="addProduct"
+              class="bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 transition-colors duration-300 w-3/4 mx-auto"
+            >
+              Add Product
+            </button>
+            <button
+              v-if="userrole == 'Administrator'"
+              @click="deleteProduct"
+              class="bg-yellow-500 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600 transition-colors duration-300 w-3/4 mx-auto"
+            >
+              Delete Product
+            </button>
+
+            <button
+              v-if="userrole != 'Administrator'"
+              @click="transfer"
+              class="bg-cyan-500 text-white font-bold py-2 px-4 rounded hover:bg-cyan-600 transition-colors duration-300 w-3/4 mx-auto"
+            >
+              Transfer Product
+            </button>
+            <button
+              @click="disconnectWallet"
+              class="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 transition-colors duration-300 w-3/4 mx-auto"
+            >
+              Disconnect
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -56,25 +70,28 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
-import { ref, onMounted, onActivated } from 'vue';
-import { connectWallet, disconnectWallet, isConnected } from '../helpers/WalletHelper.vue';
+import { ref, onMounted } from 'vue';
+import { connectWallet, isConnected } from '../helpers/WalletHelper.vue';
 import { getMyInfo } from '../helpers/ContractFunctions.vue';
 
 const router = useRouter();
 
-const userrole = ref(null);
 const address = ref(null);
+const name = ref(null);
+const email = ref(null);
+const userrole = ref(null);
 
 onMounted(async () => {
-  const userInfo = await getMyInfo();
-
-  if (isConnected.value && userInfo !== null) {
+  if (await getMyInfo()) {
     isConnected.value = true;
+    const userInfo = await getMyInfo();
 
-    userrole.value = userInfo[3];
     address.value = userInfo[0];
-
-    console.log('User Role:', userInfo);
+    name.value = userInfo[1];
+    email.value = userInfo[2];
+    userrole.value = userInfo[3];
+  } else {
+    router.push('/');
   }
 });
 
@@ -115,5 +132,9 @@ function transfer() {
     return;
   }
   router.push('/transfer');
+}
+
+function disconnectWallet() {
+  router.push('/');
 }
 </script>

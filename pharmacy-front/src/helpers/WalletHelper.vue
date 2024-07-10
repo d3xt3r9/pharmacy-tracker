@@ -31,20 +31,14 @@ export async function connectWallet() {
       userAddress.value = accounts[0];
       localStorage.setItem('userAddress', userAddress.value);
       isConnected.value = true;
+      console.log('Connected wallet:', userAddress.value);
+      return true;
     } catch (error) {
-      console.error('Error connecting walle t:', error);
-      // Optionally, handle specific errors or display user-friendly messages
-      throw error; // Propagate error to handle in the calling context if needed
+      console.error('Error connecting wallet:', error);
     }
   } else {
-    alert('MetaMask is not installed. Please install MetaMask and try again.');
+    return false;
   }
-}
-
-export function disconnectWallet() {
-  userAddress.value = null;
-  localStorage.removeItem('userAddress');
-  isConnected.value = false;
 }
 
 export { userAddress, isConnected };
