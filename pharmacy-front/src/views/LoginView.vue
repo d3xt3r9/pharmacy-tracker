@@ -1,14 +1,22 @@
 <template>
-  <div class="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-8 items-center justify-center min-h-screen bg-gray-100 p-4 md:p-8">
+  <div class="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-4 items-center justify-center min-h-screen bg-gray-100 p-8 md:p-8">
     <div class="text-center">
-      <h1 class="text-4xl font-bold mb-2 md:mb-4 text-blue-600">Welcome to Pharmacy Supply Chain</h1>
-      <p class="text-lg mb-2 md:mb-4">Manage your products securely with blockchain technology.</p>
-      <button @click="connect" class="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition-colors duration-300">
+      <h1 class="text-5xl font-bold mb-2 md:mb-4 text-sky-800">Pharmacy Supply Chain</h1>
+      <h2 class="text-2xl font-bold mb-2 md:mb-4 text-sky-700">Secure - Transparent - Efficient.</h2>
+
+      <p class="text-lg mb-2 md:mb-8 px-8 m-8">
+        Manage your pharmaceutical products securely with blockchain technology. Ensure transparency, efficiency, and compliance throughout your supply chain.
+      </p>
+      <button @click="connect" class="bg-sky-600 text-white font-bold py-2 px-4 rounded hover:bg-sky-500 transition-colors duration-300">
         Connect to MetaMask
       </button>
     </div>
     <div>
-      <img src="../assets/pharmacycover.jpg" alt="Connected Image" class="mx-auto rounded-full w-80 object-cover" />
+      <img
+        src="../assets/pharmachain.svg"
+        alt="Connected Image"
+        class="mx-auto rounded-full w-96 h-96 object-cover shadow-lg transition-transform transform hover:scale-110 hover:shadow-2xl duration-300 ease-in-out"
+      />
     </div>
   </div>
 </template>

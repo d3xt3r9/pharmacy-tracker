@@ -1,14 +1,16 @@
 <template>
-  <div class="flex flex-col items-center justify-center min-h-screen bg-cover bg-center bg-gray-50 p-4 md:p-8 space-y-8">
+  <Menu />
+  <div class="flex flex-col items-center justify-center bg-cover bg-center bg-gray-50 p-4 md:p-8 space-y-2">
     <!-- Welcome Message -->
     <div class="text-center w-full max-w-3xl">
       <div class="bg-white bg-opacity-80 shadow-xl rounded-lg p-8 md:p-12">
-        <h1 class="text-4xl md:text-3xl font-extrabold mb-6 text-blue-600">Welcome to Pharmacy Supply Chain</h1>
+        <h1 class="text-4xl md:text-3xl font-extrabold mb-6 text-sky-900">
+          Welcome <span class="font-semibold text-sky-900">{{ name }}</span>
+        </h1>
         <div class="text-left space-y-2">
-          <p class="text-gray-800 text-lg md:text-xl"><span class="font-semibold">Wallet Connected:</span> {{ address }}</p>
-          <p class="text-gray-800 text-lg md:text-xl"><span class="font-semibold">Name:</span> {{ name }}</p>
-          <p class="text-gray-800 text-lg md:text-xl"><span class="font-semibold">Email:</span> {{ email }}</p>
-          <p class="text-gray-800 text-lg md:text-xl"><span class="font-semibold">Role:</span> {{ userrole }}</p>
+          <p class="text-sky-700 text-lg md:text-xl"><span class="font-semibold text-sky-900">Wallet:</span> {{ address }}</p>
+          <p class="text-sky-700 text-lg md:text-xl"><span class="font-semibold text-sky-900">Email:</span> {{ email }}</p>
+          <p class="text-sky-700 text-lg md:text-xl"><span class="font-semibold text-sky-900">Role:</span> {{ userrole }}</p>
         </div>
       </div>
     </div>
@@ -17,7 +19,7 @@
     <div class="text-center w-full max-w-3xl">
       <div class="bg-white bg-opacity-80 shadow-xl rounded-lg p-6 md:p-8">
         <div v-if="isConnected">
-          <h2 class="text-2xl font-bold mb-4">Actions</h2>
+          <h2 class="text-2xl text-sky-900 font-bold mb-4">ACTIONS MENU</h2>
           <div class="space-y-4">
             <button
               v-if="userrole == 'Administrator'"
@@ -69,6 +71,7 @@
 </template>
 
 <script setup>
+import Menu from '@/components/Menu.vue';
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import { connectWallet, isConnected } from '../helpers/WalletHelper.vue';

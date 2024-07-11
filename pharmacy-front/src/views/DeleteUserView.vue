@@ -1,22 +1,27 @@
 <template>
+  <Menu />
   <aside class="bg-white border-r flex-shrink-0">
-    <h2 class="text-xl font-bold p-4 border-b">Users</h2>
-    <button @click="getUsers" class="bg-blue-500 text-white p-2 rounded mt-4">Refresh User List</button>
-    <div class="p-4 flex flex-wrap gap-4">
-      <div v-for="user in users" :key="user" class="p-2 rounded text-left border rounded">
+    <div class="flex justify-center mt-4">
+      <button @click="getUsers" class="bg-green-800 text-white rounded hover:bg-green-700 transition-colors duration-300 font-semibold p-3 rounded">
+        Refresh Users List
+      </button>
+    </div>
+    <div class="p-8 flex flex-wrap gap-10">
+      <div v-for="user in users" :key="user" class="p-6 rounded text-left border rounded">
         <h2>
           <b>{{ user.name }}</b>
         </h2>
         <h2>{{ user.wallet }}</h2>
         <p>email: {{ user.email }}</p>
         <p>Role: {{ user.role }}</p>
-        <button @click="deleteUser(user.wallet)" class="bg-red-500 text-white p-2 rounded">Delete User</button>
+        <button @click="deleteUser(user.wallet)" class="bg-red-500 text-white my-4 p-1 rounded">Delete User</button>
       </div>
     </div>
   </aside>
 </template>
 
 <script setup>
+import Menu from '@/components/Menu.vue';
 import { ref, onMounted } from 'vue';
 import { removeUser, getUsersWallet, getUsersInfo } from '../helpers/ContractFunctions.vue';
 

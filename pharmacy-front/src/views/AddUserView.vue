@@ -1,10 +1,14 @@
 <template>
-  <div class="flex h-full">
+  <Menu />
+  <div class="flex h-full mx-20">
     <!-- User List Column -->
-    <aside class="bg-white border-r w-1/8 p-4">
-      <h2 class="text-xl font-bold p-2 border-b">Users</h2>
-      <button @click="getUsers" class="bg-blue-500 text-white p-2 rounded mt-4">Refresh User List</button>
-      <div class="p-4 grid grid-cols-2 gap-4">
+    <aside class="bg-white border-r w-1/8 p-2 m-4">
+      <div class="flex justify-center mt-4">
+        <button @click="getUsers" class="bg-green-800 text-white rounded hover:bg-green-700 transition-colors duration-300 font-semibold p-3 rounded">
+          Refresh Users List
+        </button>
+      </div>
+      <div class="py-4 grid grid-cols-2 gap-2">
         <div v-for="user in users" :key="user.wallet" class="p-4 rounded text-left border">
           <h2 class="font-bold">{{ user.name }}</h2>
           <h2>{{ user.wallet }}</h2>
@@ -14,7 +18,7 @@
       </div>
     </aside>
     <!-- Form Column -->
-    <main class="flex-1 p-6">
+    <main class="flex-1 p-2">
       <div class="bg-white p-6 rounded-lg shadow-lg">
         <h2 class="text-2xl font-bold mb-4">Add New User</h2>
         <form @submit.prevent="addParticipant">
@@ -47,6 +51,7 @@
 </template>
 
 <script setup>
+import Menu from '@/components/Menu.vue';
 import { ref, onMounted } from 'vue';
 import { createUser, getUsersWallet, getUsersInfo } from '../helpers/ContractFunctions.vue';
 
