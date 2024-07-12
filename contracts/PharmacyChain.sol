@@ -144,8 +144,8 @@ contract PharmacyChain {
     // Constructor to set the contract creator as the administrator
     constructor() {
         users[msg.sender].walletAddress = msg.sender;
-        users[msg.sender].name = "Administrator";
-        users[msg.sender].email = "admin@mypharmachain.com";
+        users[msg.sender].name = "mpked2314";
+        users[msg.sender].email = "mpked2314@unipi.gr";
         users[msg.sender].role = Role.Administrator;
 
         totalUsers++;
@@ -238,11 +238,11 @@ contract PharmacyChain {
                 console.log("Supplier -- Supplier");
                 return (product.name, product.quantity, product.currentOwner, product.currentlocation, product.shippingHistory);
 
-            } else if(userRole == Role.LogisticEmployee && CheckLocation == ProductLocation.LogisticWarehouse) {
+            } else if(userRole == Role.LogisticEmployee && CheckLocation == ProductLocation.Supplier) {
                 console.log("LogisticEmployee -- LogisticWarehouse");
                 return (product.name, product.quantity, product.currentOwner, product.currentlocation, product.shippingHistory);
 
-             } else if(userRole == Role.LogisticEmployee && CheckLocation == ProductLocation.Courier) {
+             } else if(userRole == Role.LogisticEmployee && CheckLocation == ProductLocation.LogisticWarehouse) {
                 console.log("LogisticEmployee -- LogisticWarehouse");
                 return (product.name, product.quantity, product.currentOwner, product.currentlocation, product.shippingHistory);
 

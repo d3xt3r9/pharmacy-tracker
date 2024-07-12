@@ -78,6 +78,9 @@ const products = ref([]);
 async function addProduct() {
   const txhash = await addProducToPharmaChain(productID, productName, productQuantity);
   console.log('Transaction Hash:', txhash);
+  productID.value = 0;
+  productName.value = '';
+  productQuantity.value = 0;
 }
 
 async function getProducts() {

@@ -1,4 +1,5 @@
 <template>
+  <Menu />
   <aside class="bg-white border-r flex-shrink-0">
     <h2 class="text-xl font-bold p-4 border-b">Users</h2>
     <button @click="getProducts" class="bg-blue-500 text-white p-2 rounded mt-4">Refresh Product List</button>
@@ -44,6 +45,7 @@
 </template>
 
 <script setup>
+import Menu from '@/components/Menu.vue';
 import { ref, onMounted } from 'vue';
 // import { getUserWallet } from '../helpers/WalletHelper.vue';
 import { getProductsId, getProductbyidFromPharmaChain, makeTransfer } from '../helpers/ContractFunctions.vue';

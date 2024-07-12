@@ -11,13 +11,13 @@ module.exports = buildModule('PharmacyChain', (m) => {
   //   value: 100_000_000_000_000_000n, // 0,1 ETH
   // });
 
-  m.call(pharmacy, 'addUser', ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 'Athanasios', 'User_Supplier_1@mypharmachain.com', 2]);
+  m.call(pharmacy, 'addUser', ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 'Athanasios', 'User_Supplier_1@mypharmachain.gr', 2]);
 
-  m.call(pharmacy, 'getUserRole', ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266']);
+  // m.call(pharmacy, 'getUserRole', ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266']);
 
-  m.call(pharmacy, 'addProduct', [1, 'depon', 9]);
+  m.call(pharmacy, 'addProduct', [1, 'DEPON', 9]);
 
-  const myproduct = m.call(pharmacy, 'getProduct', [1]);
+  // const myproduct = m.call(pharmacy, 'getProduct', [1]);
 
   return { pharmacy };
 });
