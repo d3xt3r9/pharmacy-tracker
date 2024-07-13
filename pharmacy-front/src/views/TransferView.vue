@@ -65,7 +65,6 @@ async function getProducts() {
 
   for (const id of ids) {
     const productInfo = await getProductbyidFromPharmaChain(id[0]);
-    console.log(productInfo);
     const productObject = {
       productId: id[0],
       name: productInfo[0],
@@ -74,16 +73,14 @@ async function getProducts() {
       location: productInfo[3],
       shippinghistory: productInfo[4],
     };
-    const temp = productInfo[4];
-    console.log(temp[0]);
-    productsList.push(productObject);
+    if (productInfo[4].length > 0) {
+      productsList.push(productObject);
+    }
   }
   products.value = productsList;
 }
 
 async function transferProduct(productID, transferID, locationTransfer) {
-  console.log(productID, transferID, locationTransfer);
-
   const txID = await makeTransfer(productID, transferID, locationTransfer);
   console.log(txID);
   return;

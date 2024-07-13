@@ -23,13 +23,10 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
-import { ref, onMounted, onActivated } from 'vue';
-import { connectWallet, isConnected } from '../helpers/WalletHelper.vue';
+import { ref, onMounted } from 'vue';
+import { connectWallet } from '../helpers/WalletHelper.vue';
 
 const router = useRouter();
-
-const userrole = ref(null);
-const address = ref(null);
 
 onMounted(async () => {});
 

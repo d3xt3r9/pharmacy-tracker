@@ -74,7 +74,7 @@
 import Menu from '@/components/Menu.vue';
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
-import { connectWallet, isConnected } from '../helpers/WalletHelper.vue';
+import { isConnected } from '../helpers/WalletHelper.vue';
 import { getMyInfo } from '../helpers/ContractFunctions.vue';
 
 const router = useRouter();

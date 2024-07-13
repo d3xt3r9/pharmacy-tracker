@@ -20,7 +20,6 @@ const contractABI = [
   'function getProduct(uint8 _productId) view returns (string name, uint8 quantity, address currentOwner, uint8 currentLocation, tuple(uint256 transferId, address makeTransfer, uint256 timestamp, uint8 location, uint8 quantity)[] shippingHistory)',
   'function getParticipant(address _participant) view returns (string name, string email, address walletAddress, uint8 role)',
   'function addTranfer(uint8 _productId, uint256 _transferId, uint8 _location)',
-  // 'function addProductFee() view returns (uint256)',
 ];
 
 export async function getMyInfo() {
@@ -35,7 +34,6 @@ export async function getMyInfo() {
       return userInfo;
     } catch (error) {
       const { reason } = await errorDecoder.decode(error);
-      console.log('Revert reason:', reason);
     }
   } else {
     alert('Please connect your wallet first.');
@@ -46,15 +44,11 @@ export async function getMyInfo() {
 export async function getUsersWallet() {
   const provider = new ethers.BrowserProvider(window.ethereum);
   const signer = await provider.getSigner();
-  // const signerAddress = await signer.getAddress();
   const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer);
 
   try {
     const userAddressList = await contractWithSigner.getAddressList();
-    // console.log(userAddressList);
-    userAddressList.forEach((user) => {
-      // console.log('Wallet Address:', user);
-    });
+    userAddressList.forEach((user) => {});
     return userAddressList;
   } catch (error) {
     const { reason } = await errorDecoder.decode(error);
@@ -70,7 +64,6 @@ export async function getUsersInfo(address) {
 
   try {
     const userInfo = await contractWithSigner.getUserlInfo(address);
-    // console.log('User Info:', userInfo);
     return userInfo;
   } catch (error) {
     const { reason } = await errorDecoder.decode(error);
@@ -154,25 +147,10 @@ export async function removeProduct(productId) {
 export async function getProductbyidFromPharmaChain(productId) {
   const provider = new ethers.BrowserProvider(window.ethereum);
   const signer = await provider.getSigner();
-  // const signerAddress = await signer.getAddress();
   const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer);
 
   try {
     const productDetails = await contractWithSigner.getProduct(productId);
-
-    // console.log('Product Name:', productDetails.name);
-    // console.log('Quantity:', productDetails.quantity);
-    // console.log('Current Owner:', productDetails.currentOwner);
-    // console.log('Current Location:', productDetails.currentLocation);
-    // console.log('Shipping History:');
-    // productDetails.shippingHistory.forEach((shippingData) => {
-    //   console.log('  Transfer ID:', shippingData.transferId);
-    //   console.log('  From:', shippingData.from);
-    //   console.log('  To:', shippingData.to);
-    //   console.log('  Timestamp:', shippingData.timestamp);
-    //   console.log('  Location:', shippingData.location);
-    //   console.log('  Quantity:', shippingData.quantity);
-    // });
     return productDetails;
   } catch (error) {
     const { reason } = await errorDecoder.decode(error);
@@ -200,15 +178,10 @@ export async function makeTransfer(productID, transferID, locationTransfer) {
 export async function getProductsId() {
   const provider = new ethers.BrowserProvider(window.ethereum);
   const signer = await provider.getSigner();
-  // const signerAddress = await signer.getAddress();
   const contractWithSigner = new ethers.Contract(contractAddress, contractABI, signer);
 
   try {
     const productsList = await contractWithSigner.getProductList();
-    // console.log(userAddressList);
-    productsList.forEach((product) => {
-      console.log('products id:', product[0]);
-    });
     return productsList;
   } catch (error) {
     const { reason } = await errorDecoder.decode(error);

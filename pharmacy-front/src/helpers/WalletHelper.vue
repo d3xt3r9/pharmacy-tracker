@@ -10,7 +10,6 @@ export async function getUserWallet() {
       const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts',
       });
-      // console.log('Connected wallet:', accounts[0]);
       return accounts[0];
     } catch (error) {
       console.error('Error connecting wallet:', error);
